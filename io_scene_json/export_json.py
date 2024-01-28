@@ -332,12 +332,12 @@ class JsonExporter:
         
         self.writel(S_FX, 3, "{ technique_sid:\"common\",")
         shtype = "blinn"
-        self.writel(S_FX, 4, "<{}>".format(shtype)) ##todo continue here
+        self.writel(S_FX, 4, "{}:".format(shtype))
 
-        self.writel(S_FX, 5, "<emission>")
+        self.writel(S_FX, 5, "{ emission:")
         if emission_tex is not None:
             self.writel(
-                S_FX, 6, "<texture texture=\"{}\" texcoord=\"CHANNEL1\"/>"
+                S_FX, 6, "{ texture: \"{}\", texcoord: \"CHANNEL1\","
                 .format(emission_tex))
         else:
             # TODO: More accurate coloring, if possible     
