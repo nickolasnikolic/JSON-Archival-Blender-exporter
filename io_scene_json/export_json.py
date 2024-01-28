@@ -216,10 +216,10 @@ class JsonExporter:
 
         print("FOR: {}".format(imgpath))
 
-        self.writel(S_IMGS, 1, "<image id=\"{}\" name=\"{}\">".format(
+        self.writel(S_IMGS, 1, "{ image_id:\"{}\", name:\"{}\",".format(
             imgid, image.name))
-        self.writel(S_IMGS, 2, "<init_from>{}</init_from>".format(imgpath))
-        self.writel(S_IMGS, 1, "</image>")
+        self.writel(S_IMGS, 2, "init_from:\"{}\"".format(imgpath))
+        self.writel(S_IMGS, 1, "}")
         self.image_cache[image] = imgid
         return imgid
 
@@ -229,9 +229,9 @@ class JsonExporter:
             return material_id
 
         fxid = self.new_id("fx")
-        self.writel(S_FX, 1, "<effect id=\"{}\" name=\"{}-fx\">".format(
+        self.writel(S_FX, 1, "{ effect_id:\"{}\", name:\"{}-fx\",".format(
             fxid, material.name))
-        self.writel(S_FX, 2, "<profile_COMMON>")
+        self.writel(S_FX, 2, "profile_COMMON: [")
 
         # Find and fetch the textures and create sources    
         sampler_table = {}
@@ -258,20 +258,18 @@ class JsonExporter:
                 
                 # Surface
                 surface_sid = self.new_id("fx_surf")
-                self.writel(S_FX, 3, "<newparam sid=\"{}\">".format(surface_sid))
-                self.writel(S_FX, 4, "<surface type=\"2D\">")
-                self.writel(S_FX, 5, "<init_from>{}</init_from>".format(imgid))
-                self.writel(S_FX, 5, "<format>A8R8G8B8</format>")
-                self.writel(S_FX, 4, "</surface>")
-                self.writel(S_FX, 3, "</newparam>")
+                self.writel(S_FX, 3, "{ newparam sid:\"{}\",".format(surface_sid))
+                self.writel(S_FX, 4, "surface_type:\"2D\",")
+                self.writel(S_FX, 5, "init_from:\"{}\",".format(imgid))
+                self.writel(S_FX, 5, "format:\"A8R8G8B8\"")
+                self.writel(S_FX, 3, "}")
                 
                 # Sampler
                 sampler_sid = self.new_id("fx_sampler")
-                self.writel(S_FX, 3, "<newparam sid=\"{}\">".format(sampler_sid))
-                self.writel(S_FX, 4, "<sampler2D>")
-                self.writel(S_FX, 5, "<source>{}</source>".format(surface_sid))
-                self.writel(S_FX, 4, "</sampler2D>")
-                self.writel(S_FX, 3, "</newparam>")
+                self.writel(S_FX, 3, "{ newparam_sid:\"{}\",".format(sampler_sid))
+                self.writel(S_FX, 4, "sampler2D:")
+                self.writel(S_FX, 5, "{ source\"{}\"".format(surface_sid))
+                self.writel(S_FX, 3, "},")
                 sampler_table[i] = sampler_sid
                 
                 if tkey == "base_color_texture" and diffuse_tex is None:
@@ -306,7 +304,7 @@ class JsonExporter:
 
             # Surface
             surface_sid = self.new_id("fx_surf")
-            self.writel(S_FX, 3, "<newparam sid=\"{}\">".format(surface_sid))
+            self.writel(S_FX, 3, "<newparam sid:\"{}\",".format(surface_sid))
             self.writel(S_FX, 4, "<surface type=\"2D\">")
             self.writel(S_FX, 5, "<init_from>{}</init_from>".format(imgid))
             self.writel(S_FX, 5, "<format>A8R8G8B8</format>")
@@ -315,7 +313,7 @@ class JsonExporter:
 
             # Sampler
             sampler_sid = self.new_id("fx_sampler")
-            self.writel(S_FX, 3, "<newparam sid=\"{}\">".format(sampler_sid))
+            self.writel(S_FX, 3, "<newparam sid:\"{}\",".format(sampler_sid))
             self.writel(S_FX, 4, "<sampler2D>")
             self.writel(S_FX, 5, "<source>{}</source>".format(surface_sid))
             self.writel(S_FX, 4, "</sampler2D>")
@@ -332,9 +330,9 @@ class JsonExporter:
                 normal_tex = sampler_sid
         """
         
-        self.writel(S_FX, 3, "<technique sid=\"common\">")
+        self.writel(S_FX, 3, "{ technique_sid:\"common\",")
         shtype = "blinn"
-        self.writel(S_FX, 4, "<{}>".format(shtype))
+        self.writel(S_FX, 4, "<{}>".format(shtype)) ##todo continue here
 
         self.writel(S_FX, 5, "<emission>")
         if emission_tex is not None:
@@ -427,7 +425,7 @@ class JsonExporter:
 
         # Material (if active)
         matid = self.new_id("material")
-        self.writel(S_MATS, 1, "<material id=\"{}\" name=\"{}\">".format(
+        self.writel(S_MATS, 1, "<material id=\"{}\" name:\"{}\",".format(
             matid, material.name))
         self.writel(S_MATS, 2, "<instance_effect url=\"#{}\"/>".format(fxid))
         self.writel(S_MATS, 1, "</material>")
@@ -512,7 +510,7 @@ class JsonExporter:
             self.writel(
                 S_MORPH, 4,
                 "<IDREF_array id=\"{}-morph-targets-array\" "
-                "count=\"{}\">".format(mid, len(morph_targets) - 1))
+                "count:\"{}\",".format(mid, len(morph_targets) - 1))
             marr = ""
             warr = ""
             for i in range(len(morph_targets)):
@@ -761,7 +759,7 @@ class JsonExporter:
 
         meshid = self.new_id("mesh")
         self.writel(
-            S_GEOM, 1, "<geometry id=\"{}\" name=\"{}\">".format(
+            S_GEOM, 1, "<geometry id=\"{}\" name:\"{}\",".format(
                 meshid, name_to_use))
 
         self.writel(S_GEOM, 2, "<mesh>")
@@ -774,7 +772,7 @@ class JsonExporter:
                 v.vertex.x, v.vertex.y, v.vertex.z)
         self.writel(
             S_GEOM, 4, "<float_array id=\"{}-positions-array\" "
-            "count=\"{}\">{}</float_array>".format(
+            "count:\"{}\",{}</float_array>".format(
                 meshid, len(vertices) * 3, float_values))
         self.writel(S_GEOM, 4, "<technique_common>")
         self.writel(
@@ -795,7 +793,7 @@ class JsonExporter:
                 v.normal.x, v.normal.y, v.normal.z)
         self.writel(
             S_GEOM, 4, "<float_array id=\"{}-normals-array\" "
-            "count=\"{}\">{}</float_array>".format(
+            "count:\"{}\",{}</float_array>".format(
                 meshid, len(vertices) * 3, float_values))
         self.writel(S_GEOM, 4, "<technique_common>")
         self.writel(
@@ -817,7 +815,7 @@ class JsonExporter:
                     v.tangent.x, v.tangent.y, v.tangent.z)
             self.writel(
                 S_GEOM, 4, "<float_array id=\"{}-tangents-array\" "
-                "count=\"{}\">{}</float_array>".format(
+                "count:\"{}\",{}</float_array>".format(
                     meshid, len(vertices) * 3, float_values))
             self.writel(S_GEOM, 4, "<technique_common>")
             self.writel(
@@ -838,7 +836,7 @@ class JsonExporter:
                     v.bitangent.x, v.bitangent.y, v.bitangent.z)
             self.writel(
                 S_GEOM, 4, "<float_array id=\"{}-bitangents-array\" "
-                "count=\"{}\">{}</float_array>".format(
+                "count:\"{}\",{}</float_array>".format(
                     meshid, len(vertices) * 3, float_values))
             self.writel(S_GEOM, 4, "<technique_common>")
             self.writel(
@@ -865,7 +863,7 @@ class JsonExporter:
 
             self.writel(
                 S_GEOM, 4, "<float_array id=\"{}-texcoord-{}-array\" "
-                "count=\"{}\">{}</float_array>".format(
+                "count:\"{}\",{}</float_array>".format(
                     meshid, uvi, len(vertices) * 2, float_values))
             self.writel(S_GEOM, 4, "<technique_common>")
             self.writel(
@@ -887,7 +885,7 @@ class JsonExporter:
                     v.color.x, v.color.y, v.color.z)
             self.writel(
                 S_GEOM, 4, "<float_array id=\"{}-colors-array\" "
-                "count=\"{}\">{}</float_array>".format(
+                "count:\"{}\",{}</float_array>".format(
                     meshid, len(vertices) * 3, float_values))
             self.writel(S_GEOM, 4, "<technique_common>")
             self.writel(
@@ -921,12 +919,12 @@ class JsonExporter:
             if (mat is not None):
                 matref = self.new_id("trimat")
                 self.writel(
-                    S_GEOM, 3, "<{} count=\"{}\" material=\"{}\">".format(
+                    S_GEOM, 3, "<{} count=\"{}\" material:\"{}\",".format(
                         prim_type,
                         int(len(indices)), matref))  # TODO: Implement material
                 mat_assign.append((mat, matref))
             else:
-                self.writel(S_GEOM, 3, "<{} count=\"{}\">".format(
+                self.writel(S_GEOM, 3, "<{} count:\"{}\",".format(
                     prim_type, int(len(indices))))  # TODO: Implement material
 
             self.writel(
@@ -985,7 +983,7 @@ class JsonExporter:
                 skel_source is not None or skeyindex == -1)):
             contid = self.new_id("controller")
 
-            self.writel(S_SKIN, 1, "<controller id=\"{}\">".format(contid))
+            self.writel(S_SKIN, 1, "<controller id:\"{}\",".format(contid))
             if (skel_source is not None):
                 self.writel(S_SKIN, 2, "<skin source=\"#{}\">".format(
                     skel_source))
@@ -1003,7 +1001,7 @@ class JsonExporter:
 
             self.writel(
                 S_SKIN, 4, "<Name_array id=\"{}-joints-array\" "
-                "count=\"{}\">{}</Name_array>".format(
+                "count:\"{}\",{}</Name_array>".format(
                     contid, len(si["bone_names"]), name_values))
             self.writel(S_SKIN, 4, "<technique_common>")
             self.writel(
@@ -1023,7 +1021,7 @@ class JsonExporter:
 
             self.writel(
                 S_SKIN, 4, "<float_array id=\"{}-bind_poses-array\" "
-                "count=\"{}\">{}</float_array>".format(
+                "count:\"{}\",{}</float_array>".format(
                     contid, len(si["bone_bind_poses"]) * 16, pose_values))
             self.writel(S_SKIN, 4, "<technique_common>")
             self.writel(
@@ -1047,7 +1045,7 @@ class JsonExporter:
 
             self.writel(
                 S_SKIN, 4, "<float_array id=\"{}-skin_weights-array\" "
-                "count=\"{}\">{}</float_array>".format(
+                "count:\"{}\",{}</float_array>".format(
                     contid, skin_weights_total, skin_weights))
             self.writel(S_SKIN, 4, "<technique_common>")
             self.writel(
@@ -1069,7 +1067,7 @@ class JsonExporter:
                 "source=\"#{}-bind_poses\"/>".format(contid))
             self.writel(S_SKIN, 3, "</joints>")
             self.writel(
-                S_SKIN, 3, "<vertex_weights count=\"{}\">".format(
+                S_SKIN, 3, "<vertex_weights count:\"{}\",".format(
                     len(vertices)))
             self.writel(
                 S_SKIN, 4, "<input semantic=\"JOINT\" "
@@ -1267,7 +1265,7 @@ class JsonExporter:
 
         camera = node.data
         camid = self.new_id("camera")
-        self.writel(S_CAMS, 1, "<camera id=\"{}\" name=\"{}\">".format(
+        self.writel(S_CAMS, 1, "<camera id=\"{}\" name:\"{}\",".format(
             camid, camera.name))
         self.writel(S_CAMS, 2, "<optics>")
         self.writel(S_CAMS, 3, "<technique_common>")
@@ -1307,7 +1305,7 @@ class JsonExporter:
 
         light = node.data
         lightid = self.new_id("light")
-        self.writel(S_LAMPS, 1, "<light id=\"{}\" name=\"{}\">".format(
+        self.writel(S_LAMPS, 1, "<light id=\"{}\" name:\"{}\",".format(
                 lightid, light.name))
         self.writel(S_LAMPS, 3, "<technique_common>")
 
@@ -1367,9 +1365,9 @@ class JsonExporter:
         splineid = self.new_id("spline")
 
         self.writel(
-            S_GEOM, 1, "<geometry id=\"{}\" name=\"{}\">".format(
+            S_GEOM, 1, "<geometry id=\"{}\" name:\"{}\",".format(
                 splineid, curve.name))
-        self.writel(S_GEOM, 2, "<spline closed=\"{}\">".format(
+        self.writel(S_GEOM, 2, "<spline closed:\"{}\",".format(
                 "true" if curve.splines and curve.splines[0].use_cyclic_u else "false"))
 
         points = []
@@ -1417,7 +1415,7 @@ class JsonExporter:
             position_values += " {}".format(x)
         self.writel(
             S_GEOM, 4, "<float_array id=\"{}-positions-array\" "
-            "count=\"{}\">{}</float_array>".format(
+            "count:\"{}\",{}</float_array>".format(
                 splineid, len(points), position_values))
         self.writel(S_GEOM, 4, "<technique_common>")
         self.writel(
@@ -1437,7 +1435,7 @@ class JsonExporter:
             intangent_values += " {}".format(x)
         self.writel(
             S_GEOM, 4, "<float_array id=\"{}-intangents-array\" "
-            "count=\"{}\">{}</float_array>".format(
+            "count:\"{}\",{}</float_array>".format(
                 splineid, len(points), intangent_values))
         self.writel(S_GEOM, 4, "<technique_common>")
         self.writel(
@@ -1457,7 +1455,7 @@ class JsonExporter:
             outtangent_values += " {}".format(x)
         self.writel(
             S_GEOM, 4, "<float_array id=\"{}-outtangents-array\" "
-            "count=\"{}\">{}</float_array>".format(
+            "count:\"{}\",{}</float_array>".format(
                 splineid, len(points), outtangent_values))
         self.writel(S_GEOM, 4, "<technique_common>")
         self.writel(
@@ -1477,7 +1475,7 @@ class JsonExporter:
             interpolation_values += " {}".format(x)
         self.writel(
             S_GEOM, 4, "<Name_array id=\"{}-interpolations-array\" "
-            "count=\"{}\">{}</Name_array>"
+            "count:\"{}\",{}</Name_array>"
             .format(splineid, len(interps), interpolation_values))
         self.writel(S_GEOM, 4, "<technique_common>")
         self.writel(
@@ -1494,7 +1492,7 @@ class JsonExporter:
             tilt_values += " {}".format(x)
         self.writel(
             S_GEOM, 4,
-            "<float_array id=\"{}-tilts-array\" count=\"{}\">{}</float_array>"
+            "<float_array id=\"{}-tilts-array\" count:\"{}\",{}</float_array>"
             .format(splineid, len(tilts), tilt_values))
         self.writel(S_GEOM, 4, "<technique_common>")
         self.writel(
@@ -1644,7 +1642,7 @@ class JsonExporter:
     def export_animation_transform_channel(self, target, keys, matrices=True):
         frame_total = len(keys)
         anim_id = self.new_id("anim")
-        self.writel(S_ANIM, 1, "<animation id=\"{}\">".format(anim_id))
+        self.writel(S_ANIM, 1, "<animation id:\"{}\",".format(anim_id))
         source_frames = ""
         source_transforms = ""
         source_interps = ""
@@ -1662,7 +1660,7 @@ class JsonExporter:
         self.writel(S_ANIM, 2, "<source id=\"{}-input\">".format(anim_id))
         self.writel(
             S_ANIM, 3, "<float_array id=\"{}-input-array\" "
-            "count=\"{}\">{}</float_array>".format(
+            "count:\"{}\",{}</float_array>".format(
                 anim_id, frame_total, source_frames))
         self.writel(S_ANIM, 3, "<technique_common>")
         self.writel(
@@ -1680,7 +1678,7 @@ class JsonExporter:
                     anim_id))
             self.writel(
                 S_ANIM, 3, "<float_array id=\"{}-transform-output-array\" "
-                "count=\"{}\">{}</float_array>".format(
+                "count:\"{}\",{}</float_array>".format(
                     anim_id, frame_total * 16, source_transforms))
             self.writel(S_ANIM, 3, "<technique_common>")
             self.writel(
@@ -1699,7 +1697,7 @@ class JsonExporter:
                 "<source id=\"{}-transform-output\">".format(anim_id))
             self.writel(
                 S_ANIM, 3, "<float_array id=\"{}-transform-output-array\" "
-                "count=\"{}\">{}</float_array>".format(
+                "count:\"{}\",{}</float_array>".format(
                     anim_id, frame_total, source_transforms))
             self.writel(S_ANIM, 3, "<technique_common>")
             self.writel(
@@ -1716,7 +1714,7 @@ class JsonExporter:
                 anim_id))
         self.writel(
             S_ANIM, 3, "<Name_array id=\"{}-interpolation-output-array\" "
-            "count=\"{}\">{}</Name_array>".format(
+            "count:\"{}\",{}</Name_array>".format(
                 anim_id, frame_total, source_interps))
         self.writel(S_ANIM, 3, "<technique_common>")
         self.writel(
@@ -1936,7 +1934,7 @@ class JsonExporter:
                 end = x.frame_range[1] * framelen
                 self.writel(
                     S_ANIM_CLIPS, 1, "<animation_clip name=\"{}\" "
-                    "start=\"{}\" end=\"{}\">".format(x.name, start, end))
+                    "start=\"{}\" end:\"{}\",".format(x.name, start, end))
                 for z in tcn:
                     self.writel(S_ANIM_CLIPS, 2,
                                 "<instance_animation url=\"#{}\"/>".format(z))
@@ -1965,7 +1963,6 @@ class JsonExporter:
         self.writel(S_ANIM, 0, "</library_animations>")
 
     def export(self):
-        self.writel(json.dumps(self),0,"")
         self.writel(S_GEOM, 0, "<library_geometries>")
         self.writel(S_CONT, 0, "<library_controllers>")
         self.writel(S_CAMS, 0, "<library_cameras>")
