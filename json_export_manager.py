@@ -25,27 +25,27 @@ from bpy.app.handlers import persistent
 from mathutils import Matrix
 
 bl_info = {
-    "name": "Godot Export Manager",
-    "author": "Andreas Esau",
-    "version": (1, 0),
+    "name": "JSON Archival Export Manager",
+    "author": "Andreas Esau, Nickolas Nikolic",
+    "version": (0, 0, 1),
     "blender": (2, 7, 0),
-    "location": "Scene Properties > Godot Export Manager",
-    "description": "Godot Export Manager uses the Better Collada Exporter"
+    "location": "Scene Properties > JSON Archival Export Manager",
+    "description": "JSON Archival Export Manager uses the JSON Archival Exporter"
     "to manage Export Groups and automatically export the objects groups"
-    "to Collada Files.",
+    "to json Files.",
     "warning": "",
-    "wiki_url": ("http://www.godotengine.org"),
+    "wiki_url": ("https://rubbery.fun"),
     "tracker_url": "",
     "category": "Import-Export"}
 
 
-class godot_export_manager(bpy.types.Panel):
-    bl_label = "Godot Export Manager"
+class json_export_manager(bpy.types.Panel):
+    bl_label = "JSON Archival Export Manager"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "scene"
 
-    bpy.types.Scene.godot_export_on_save = BoolProperty(default=False)
+    bpy.types.Scene.json_export_on_save = BoolProperty(default=False)
 
     def draw(self, context):
         """ Draw function for all ui elements """
@@ -55,14 +55,14 @@ class godot_export_manager(bpy.types.Panel):
 
         row = layout.row()
         col = row.column()
-        col.prop(scene, "godot_export_on_save", text="Export Groups on save")
+        col.prop(scene, "json_export_on_save", text="Export Groups on save")
 
         row = layout.row()
         col = row.column(align=True)
-        col.operator("scene.godot_add_objects_to_group",
+        col.operator("scene.json_add_objects_to_group",
                      text="Add selected objects to Group",
                      icon="COPYDOWN")
-        col.operator("scene.godot_delete_objects_from_group",
+        col.operator("scene.json_delete_objects_from_group",
                      text="Delete selected objects from Group",
                      icon="PASTEDOWN")
 
@@ -73,21 +73,21 @@ class godot_export_manager(bpy.types.Panel):
         row = layout.row()
         col = row.column()
 
-        col.template_list("UI_List_Godot", "dummy", scene,
-                          "godot_export_groups", scene,
-                          "godot_export_groups_index", rows=1, maxrows=10,
+        col.template_list("UI_List_json", "dummy", scene,
+                          "json_export_groups", scene,
+                          "json_export_groups_index", rows=1, maxrows=10,
                           type="DEFAULT")
 
         col = row.column(align=True)
-        col.operator("scene.godot_add_export_group", text="", icon="ZOOMIN")
-        col.operator("scene.godot_delete_export_group", text="",
+        col.operator("scene.json_add_export_group", text="", icon="ZOOMIN")
+        col.operator("scene.json_delete_export_group", text="",
                      icon="ZOOMOUT")
-        col.operator("scene.godot_export_all_groups", text="", icon="EXPORT")
+        col.operator("scene.json_export_all_groups", text="", icon="EXPORT")
 
-        if len(scene.godot_export_groups) > 0:
+        if len(scene.json_export_groups) > 0:
             row = layout.row()
             col = row.column()
-            group = scene.godot_export_groups[scene.godot_export_groups_index]
+            group = scene.json_export_groups[scene.json_export_groups_index]
             col.prop(group, "name", text="Group Name")
             col.prop(group, "export_name", text="Export Name")
             col.prop(group, "export_path", text="Export Filepath")
@@ -121,7 +121,7 @@ class godot_export_manager(bpy.types.Panel):
             col.prop(group, "use_metadata")
 
 
-class UI_List_Godot(bpy.types.UIList):
+class UI_List_json(bpy.types.UIList):
     """ Custom template_list look """
     def draw_item(self, context, layout, data, item, icon, active_data,
                   active_propname, index):
@@ -130,16 +130,16 @@ class UI_List_Godot(bpy.types.UIList):
         col.label(text=item.name, icon="GROUP")
         col.prop(item, "active", text="")
 
-        op = col.operator("scene.godot_select_group_objects",
+        op = col.operator("scene.json_select_group_objects",
                           text="", emboss=False, icon="RESTRICT_SELECT_OFF")
         op.idx = index
-        op = col.operator("scene.godot_export_group", text="", emboss=False,
+        op = col.operator("scene.json_export_group", text="", emboss=False,
                           icon="EXPORT")
         op.idx = index
 
 
 class add_objects_to_group(bpy.types.Operator):
-    bl_idname = "scene.godot_add_objects_to_group"
+    bl_idname = "scene.json_add_objects_to_group"
     bl_label = "Add Objects to Group"
     bl_description = "Adds the selected Objects to the active group below."
 
@@ -149,12 +149,12 @@ class add_objects_to_group(bpy.types.Operator):
         scene = context.scene
 
         objects_str = ""
-        if len(scene.godot_export_groups) > 0:
+        if len(scene.json_export_groups) > 0:
             for i, object in enumerate(context.selected_objects):
-                if object.name not in scene.godot_export_groups[
-                        scene.godot_export_groups_index].nodes:
-                    node = scene.godot_export_groups[
-                        scene.godot_export_groups_index].nodes.add()
+                if object.name not in scene.json_export_groups[
+                        scene.json_export_groups_index].nodes:
+                    node = scene.json_export_groups[
+                        scene.json_export_groups_index].nodes.add()
                     node.name = object.name
                     if i == 0:
                         objects_str += object.name
@@ -171,14 +171,14 @@ class add_objects_to_group(bpy.types.Operator):
 
 
 class del_objects_from_group(bpy.types.Operator):
-    bl_idname = "scene.godot_delete_objects_from_group"
+    bl_idname = "scene.json_delete_objects_from_group"
     bl_label = "Delete Objects from Group"
-    bl_description = "Delets the selected Objects from the active group below."
+    bl_description = "Deletes the selected Objects from the active group below."
 
     def execute(self, context):
         scene = context.scene
 
-        if len(scene.godot_export_groups) > 0:
+        if len(scene.json_export_groups) > 0:
 
             selected_objects = []
             for object in context.selected_objects:
@@ -186,11 +186,11 @@ class del_objects_from_group(bpy.types.Operator):
 
             objects_str = ""
             j = 0
-            for i, node in enumerate(scene.godot_export_groups[
-                    scene.godot_export_groups_index].nodes):
+            for i, node in enumerate(scene.json_export_groups[
+                    scene.json_export_groups_index].nodes):
                 if node.name in selected_objects:
-                    scene.godot_export_groups[
-                        scene.godot_export_groups_index].nodes.remove(i)
+                    scene.json_export_groups[
+                        scene.json_export_groups_index].nodes.remove(i)
 
                     if j == 0:
                             objects_str += object.name
@@ -207,7 +207,7 @@ class del_objects_from_group(bpy.types.Operator):
 
 
 class select_group_objects(bpy.types.Operator):
-    bl_idname = "scene.godot_select_group_objects"
+    bl_idname = "scene.json_select_group_objects"
     bl_label = "Select Group Objects"
     bl_description = "Will select all group Objects in the scene."
 
@@ -217,7 +217,7 @@ class select_group_objects(bpy.types.Operator):
         scene = context.scene
         for object in context.scene.objects:
             object.select = False
-        for node in scene.godot_export_groups[self.idx].nodes:
+        for node in scene.json_export_groups[self.idx].nodes:
             if node.name in bpy.data.objects:
                 bpy.data.objects[node.name].select = True
                 context.scene.objects.active = bpy.data.objects[node.name]
@@ -226,16 +226,16 @@ class select_group_objects(bpy.types.Operator):
 
 
 class export_groups_autosave(bpy.types.Operator):
-    bl_idname = "scene.godot_export_groups_autosave"
+    bl_idname = "scene.json_export_groups_autosave"
     bl_label = "Export All Groups"
     bl_description = "Exports all groups to Collada."
 
     def execute(self, context):
         scene = context.scene
-        if scene.godot_export_on_save:
-            for i in range(len(scene.godot_export_groups)):
-                if scene.godot_export_groups[i].active:
-                    bpy.ops.scene.godot_export_group(idx=i)
+        if scene.json_export_on_save:
+            for i in range(len(scene.json_export_groups)):
+                if scene.json_export_groups[i].active:
+                    bpy.ops.scene.json_export_group(idx=i)
         self.report({"INFO"}, "All Groups exported.")
         bpy.ops.ed.undo_push(message="Export all Groups")
 
@@ -243,15 +243,15 @@ class export_groups_autosave(bpy.types.Operator):
 
 
 class export_all_groups(bpy.types.Operator):
-    bl_idname = "scene.godot_export_all_groups"
+    bl_idname = "scene.json_export_all_groups"
     bl_label = "Export All Groups"
     bl_description = "Exports all groups to Collada."
 
     def execute(self, context):
         scene = context.scene
 
-        for i in range(0, len(scene.godot_export_groups)):
-            bpy.ops.scene.godot_export_group(idx=i, export_all=True)
+        for i in range(0, len(scene.json_export_groups)):
+            bpy.ops.scene.json_export_group(idx=i, export_all=True)
 
         self.report({"INFO"}, "All Groups exported.")
 
@@ -259,7 +259,7 @@ class export_all_groups(bpy.types.Operator):
 
 
 class export_group(bpy.types.Operator):
-    bl_idname = "scene.godot_export_group"
+    bl_idname = "scene.json_export_group"
     bl_label = "Export Group"
     bl_description = "Exports the active group to destination folder"\
                      " as Collada file."
@@ -305,7 +305,7 @@ class export_group(bpy.types.Operator):
             self.delete_object(group)
 
     def execute(self, context):
-        group = context.scene.godot_export_groups
+        group = context.scene.json_export_groups
 
         if not group[self.idx].active and self.export_all:
             return{"FINISHED"}
@@ -404,7 +404,7 @@ class export_group(bpy.types.Operator):
 
 
 class add_export_group(bpy.types.Operator):
-    bl_idname = "scene.godot_add_export_group"
+    bl_idname = "scene.json_add_export_group"
     bl_label = "Adds a new export Group"
     bl_description = "Creates a new Export Group with the selected"\
                      " Objects assigned to it."
@@ -412,19 +412,19 @@ class add_export_group(bpy.types.Operator):
     def execute(self, context):
         scene = context.scene
 
-        item = scene.godot_export_groups.add()
+        item = scene.json_export_groups.add()
         item.name = "New Group"
         for object in context.selected_objects:
             node = item.nodes.add()
             node.name = object.name
-        scene.godot_export_groups_index = len(scene.godot_export_groups)-1
+        scene.json_export_groups_index = len(scene.json_export_groups)-1
         bpy.ops.ed.undo_push(message="Create New Export Group")
 
         return{"FINISHED"}
 
 
 class del_export_group(bpy.types.Operator):
-    bl_idname = "scene.godot_delete_export_group"
+    bl_idname = "scene.json_delete_export_group"
     bl_label = "Delets the selected export Group"
     bl_description = "Delets the active Export Group."
 
@@ -436,22 +436,22 @@ class del_export_group(bpy.types.Operator):
     def execute(self, context):
         scene = context.scene
 
-        scene.godot_export_groups.remove(scene.godot_export_groups_index)
-        if scene.godot_export_groups_index > 0:
-            scene.godot_export_groups_index -= 1
+        scene.json_export_groups.remove(scene.json_export_groups_index)
+        if scene.json_export_groups_index > 0:
+            scene.json_export_groups_index -= 1
         bpy.ops.ed.undo_push(message="Delete Export Group")
 
         return {"FINISHED"}
 
 
-class godot_node_list(bpy.types.PropertyGroup):
+class json_node_list(bpy.types.PropertyGroup):
     name = StringProperty()
 
 
-class godot_export_groups(bpy.types.PropertyGroup):
+class json_export_groups(bpy.types.PropertyGroup):
     name = StringProperty(name="Group Name")
     export_name = StringProperty(name="scene_name")
-    nodes = CollectionProperty(type=godot_node_list)
+    nodes = CollectionProperty(type=json_node_list)
     export_path = StringProperty(subtype="DIR_PATH")
     active = BoolProperty(default=True, description="Export Group")
 
@@ -529,9 +529,9 @@ class godot_export_groups(bpy.types.PropertyGroup):
 
 
 def register():
-    bpy.utils.register_class(godot_export_manager)
-    bpy.utils.register_class(godot_node_list)
-    bpy.utils.register_class(godot_export_groups)
+    bpy.utils.register_class(json_export_manager)
+    bpy.utils.register_class(json_node_list)
+    bpy.utils.register_class(json_export_groups)
     bpy.utils.register_class(add_export_group)
     bpy.utils.register_class(del_export_group)
     bpy.utils.register_class(export_all_groups)
@@ -540,17 +540,17 @@ def register():
     bpy.utils.register_class(add_objects_to_group)
     bpy.utils.register_class(del_objects_from_group)
     bpy.utils.register_class(select_group_objects)
-    bpy.utils.register_class(UI_List_Godot)
+    bpy.utils.register_class(UI_List_json)
 
-    bpy.types.Scene.godot_export_groups = CollectionProperty(
-        type=godot_export_groups)
-    bpy.types.Scene.godot_export_groups_index = IntProperty(default=0, min=0)
+    bpy.types.Scene.json_export_groups = CollectionProperty(
+        type=json_export_groups)
+    bpy.types.Scene.json_export_groups_index = IntProperty(default=0, min=0)
 
 
 def unregister():
-    bpy.utils.unregister_class(godot_export_manager)
-    bpy.utils.unregister_class(godot_node_list)
-    bpy.utils.unregister_class(godot_export_groups)
+    bpy.utils.unregister_class(json_export_manager)
+    bpy.utils.unregister_class(json_node_list)
+    bpy.utils.unregister_class(json_export_groups)
     bpy.utils.unregister_class(export_groups_autosave)
     bpy.utils.unregister_class(add_export_group)
     bpy.utils.unregister_class(del_export_group)
@@ -559,12 +559,12 @@ def unregister():
     bpy.utils.unregister_class(add_objects_to_group)
     bpy.utils.unregister_class(del_objects_from_group)
     bpy.utils.unregister_class(select_group_objects)
-    bpy.utils.unregister_class(UI_List_Godot)
+    bpy.utils.unregister_class(UI_List_json)
 
 
 @persistent
 def auto_export(dummy):
-    bpy.ops.scene.godot_export_groups_autosave()
+    bpy.ops.scene.json_export_groups_autosave()
 
 bpy.app.handlers.save_post.append(auto_export)
 

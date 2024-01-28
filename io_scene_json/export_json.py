@@ -19,15 +19,14 @@
 # Contact Info: juan@godotengine.org
 
 """
-This script is an exporter to the Khronos Collada file format.
-
-http://www.khronos.org/collada/
+This script is an exporter to the JSON file format.
 """
 
 import os
 import time
 import math
 import shutil
+import json
 import bpy
 import bmesh
 from mathutils import Vector, Matrix
@@ -94,7 +93,7 @@ def strarr(arr):
     return s
 
 
-class DaeExporter:
+class JsonExporter:
 
     def validate_id(self, d):
         if (d.find("id-") == 0):
@@ -1966,6 +1965,7 @@ class DaeExporter:
         self.writel(S_ANIM, 0, "</library_animations>")
 
     def export(self):
+        self.writel(json.dumps(self),0,"")
         self.writel(S_GEOM, 0, "<library_geometries>")
         self.writel(S_CONT, 0, "<library_controllers>")
         self.writel(S_CAMS, 0, "<library_cameras>")
@@ -2066,7 +2066,7 @@ class DaeExporter:
         """
 
 def save(operator, context, filepath="", use_selection=False, **kwargs):
-    with DaeExporter(filepath, kwargs, operator) as exp:
+    with JsonExporter(filepath, kwargs, operator) as exp:
         exp.export()
 
     return {"FINISHED"}

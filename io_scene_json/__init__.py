@@ -20,34 +20,33 @@ from bpy.props import StringProperty, BoolProperty, FloatProperty, EnumProperty
 
 from bpy_extras.io_utils import ExportHelper
 bl_info = {
-    "name": "Better Collada Exporter",
-    "author": "Juan Linietsky, artell, Panthavma",
-    "version": (1, 10, 11),
+    "name": "JSON Archive Blender Exporter",
+    "author": "Juan Linietsky, artell, Panthavma, Nickolas Nikolic",
+    "version": (0, 0, 1),
     "blender": (3, 0, 1),
     "api": 38691,
     "location": "File > Import-Export",
-    "description": ("Export DAE Scenes. This plugin actually works better! "
-                    "Otherwise contact the Godot Engine community."),
+    "description": ("Export Scenes in JSON for Archival Purposes and WebGL Usage. Based on COLLADA exporter from Godot Game Engine."),
     "warning": "",
-    "wiki_url": ("https://godotengine.org"),
-    "tracker_url": "https://github.com/godotengine/collada-exporter",
+    "wiki_url": ("https://rubbery.fun"),
+    "tracker_url": "https://github.com/nickolasnikolic/json-exporter",
     "support": "OFFICIAL",
     "category": "Import-Export"}
 
 if "bpy" in locals():
     import imp
-    if "export_dae" in locals():
-        imp.reload(export_dae)  # noqa
+    if "export_json" in locals():
+        imp.reload(export_json)  # noqa
 
 
-class CE_OT_export_dae(bpy.types.Operator, ExportHelper):
-    """Selection to DAE"""
-    bl_idname = "export_scene.dae"
-    bl_label = "Export DAE"
+class CE_OT_export_json(bpy.types.Operator, ExportHelper):
+    """Selection to json"""
+    bl_idname = "export_scene.json"
+    bl_label = "Export JSON Archive"
     bl_options = {"PRESET"}
 
-    filename_ext = ".dae"
-    filter_glob : StringProperty(default="*.dae", options={"HIDDEN"})
+    filename_ext = ".json"
+    filter_glob : StringProperty(default="*.json", options={"HIDDEN"})
 
     # List of operator properties, the attributes will be assigned
     # to the class instance from the operator settings before calling
@@ -117,7 +116,7 @@ class CE_OT_export_dae(bpy.types.Operator, ExportHelper):
     use_anim_action_all : BoolProperty(
         name="All Actions",
         description=("Export all actions for the first armature found "
-                     "in separate DAE files"),
+                     "in separate json files"),
         default=False,
         )
     use_anim_skip_noexp : BoolProperty(
@@ -169,20 +168,20 @@ class CE_OT_export_dae(bpy.types.Operator, ExportHelper):
                                             "xna_validate",
                                             ))
 
-        from . import export_dae
-        return export_dae.save(self, context, **keywords)
+        from . import export_json
+        return export_json.save(self, context, **keywords)
 
 
 def menu_func(self, context):
-    self.layout.operator(CE_OT_export_dae.bl_idname, text="Better Collada (.dae)")
+    self.layout.operator(CE_OT_export_json.bl_idname, text="JSON Archival Format (.json)")
 
 	
-#classes = (CE_OT_export_dae)
+#classes = (CE_OT_export_json)
 
 def register():	 
 	from bpy.utils import register_class
 
-	register_class(CE_OT_export_dae)
+	register_class(CE_OT_export_json)
 	
 	#bpy.types.INFO_MT_file_export.append(menu_func)
 	bpy.types.TOPBAR_MT_file_export.append(menu_func)
@@ -190,7 +189,7 @@ def register():
 def unregister():	 
 	from bpy.utils import unregister_class
 	
-	unregister_class(CE_OT_export_dae)
+	unregister_class(CE_OT_export_json)
 	
 	#bpy.types.INFO_MT_file_export.append(menu_func)
 	bpy.types.TOPBAR_MT_file_export.remove(menu_func)
